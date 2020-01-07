@@ -1,0 +1,7 @@
+[user]
+	email = helenabutow@gmail.com
+	name = Helena Butow
+[merge]
+	tool = meld
+[credential]
+	helper = osxkeychain
