@@ -61,7 +61,7 @@ COMPLETION_WAITING_DOTS="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git docker docker-compose docker-machine terraform git-prompt git-auto-fetch
+  git docker docker-compose docker-machine terraform git-prompt git-auto-fetch zsh-kubectl-prompt
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -106,13 +106,22 @@ export PATH="$PATH:/Users/hbutow/go/bin"
 # setup krew.dev for kubectl plugin management
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-eval $(thefuck --alias ef)
+# use Homebrew's version of make
+export PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
 
 # set the prompt
 # this is a tweak of the amuse them + the git-prompt plugin
-
+zsh_terraform() {
+  # break if there is no .terraform directory
+  if [[ -d .terraform ]] && [[ -f .terraform/environment ]]; then
+    echo -n "$(cat .terraform/environment)"
+  else
+    echo -n "<none>"
+  fi
+}
 PROMPT='
-%{$fg_bold[green]%}%~%{$reset_color%}$(git_super_status) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}
+%{$fg_bold[green]%}%~%{$reset_color%}$(git_super_status)
+⌚ %{$fg_bold[red]%}%*%{$reset_color%}| %{$fg[blue]%}k8s cluster: $ZSH_KUBECTL_PROMPT %{$reset_color%} %{$fg[magenta]%}tf workspace: $(zsh_terraform)%{$reset_color%}
 $ '
 
 # word jumping powers activate!
@@ -136,14 +145,35 @@ alias dc='docker-compose'
 # Git aliases
 alias gs='git status'
 
+# Kubernetes aliases
+kga_func() {
+  namespaceName=$1
+  kubectl api-resources --namespaced=true --verbs=list -o name | grep -v '^events\.events\.k8s\.io$' | grep -v '^events$' | xargs echo | tr ' ' ',' | xargs kubectl get -n "${namespaceName}"
+}
+alias kga="kga_func $1"
+
+kgacw_func() {
+  kubectl api-resources --namespaced=false --verbs=list -o name | xargs -L1 kubectl get --show-kind --ignore-not-found
+}
+alias kgacw="kgacw_func"
+
 # kubectl completions activate!
 source <(kubectl completion zsh)
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/local/bin/terraform terraform
+
+alias datadog-quadra-prod='sl monitor datadog login --org-id 95aafd074'
+alias datadog-quadra-stage='sl monitor datadog login --org-id 844sdpb2w28u1y52'
+alias datadog-muon-shared='sl monitor datadog login --org-id t7vpu1j61hpz8jlo'
+alias datadog-personal='sl monitor datadog login --org-id xhrmbv445pav8ip4'
+
+alias kill-garbage='sudo launchctl unload \
+     /Library/LaunchDaemons/some.plist \
+     /Library/LaunchDaemons/some-other.plist'
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home
 
 # this needs to be at the end of the file
 # source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-
-
-autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /usr/local/bin/terraform terraform
-export PATH="/usr/local/opt/helm@2/bin:$PATH"

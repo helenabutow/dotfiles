@@ -3,5 +3,8 @@
 	name = Helena Butow
 [merge]
 	tool = meld
+[diff]
+	tool = meld
+
 [credential]
 	helper = osxkeychain
