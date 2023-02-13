@@ -61,7 +61,7 @@ COMPLETION_WAITING_DOTS="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git docker docker-compose docker-machine terraform git-prompt git-auto-fetch zsh-kubectl-prompt
+  git docker terraform git-prompt git-auto-fetch zsh-kubectl-prompt
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -108,21 +108,6 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 # use Homebrew's version of make
 export PATH="/usr/local/opt/make/libexec/gnubin:$PATH"
-
-# set the prompt
-# this is a tweak of the amuse them + the git-prompt plugin
-zsh_terraform() {
-  # break if there is no .terraform directory
-  if [[ -d .terraform ]] && [[ -f .terraform/environment ]]; then
-    echo -n "$(cat .terraform/environment)"
-  else
-    echo -n "<none>"
-  fi
-}
-PROMPT='
-%{$fg_bold[green]%}%~%{$reset_color%}$(git_super_status)
-⌚ %{$fg_bold[red]%}%*%{$reset_color%}| %{$fg[blue]%}k8s cluster: $ZSH_KUBECTL_PROMPT %{$reset_color%} %{$fg[magenta]%}tf workspace: $(zsh_terraform)%{$reset_color%}
-$ '
 
 # word jumping powers activate!
 bindkey "\e\e[D" backward-word
@@ -174,6 +159,13 @@ alias kill-garbage='sudo launchctl unload \
 
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home
 
-# this needs to be at the end of the file
-# source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# raise the default number of open files because macOS is mad and sets it to 256
+ulimit -n 4096
 
+# this needs to be at the end of the file
+source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+autoload -Uz compinit
+compinit
+
+source <(/usr/local/bin/starship init zsh --print-full-init)
