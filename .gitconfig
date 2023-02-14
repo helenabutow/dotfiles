@@ -8,3 +8,6 @@
 
 [credential]
 	helper = osxkeychain
+
+[push]
+	autoSetupRemote = true
