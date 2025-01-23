@@ -1,0 +1,92 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = false
+
+# Give external commands 2 seconds to complete (Helm needs this)
+command_timeout = 2_000
+
+# How to join the modules together into a prompt
+# Anything that we don't explicitly configure below gets put on top (via the "$all" bit)
+# so that we get any extra modules automatically
+format = """
+($all)\
+($cmd_duration$status\n)\
+($package\n)\
+($git_branch\n)\
+($git_state\n)\
+($git_metrics\n)\
+($git_status\n)\
+($helm\n)\
+($kubernetes$terraform\n)\
+$directory\n\
+$character"""
+
+[cmd_duration]
+disabled = false
+format = "took [$duration]($style) "
+min_time = 1_000
+
+[directory]
+disabled = false
+format = "[$path]($style)[$read_only]($style) "
+style = "bright-red"
+truncation_length = 20
+truncate_to_repo = false
+truncation_symbol = ".../"
+
+[git_branch]
+disabled = false
+format = "[$symbol $branch(:$remote_branch)]($style)"
+style = "bold purple"
+
+[git_metrics]
+disabled = false
+format = "[   contains $added added and $deleted deleted lines](bold purple)"
+only_nonzero_diffs = false
+
+[git_state]
+disabled = false
+format = "[   while $state( $progress_current/$progress_total)]($style) "
+style = "bold purple"
+
+[git_status]
+disabled = false
+format = '(   [(with$conflicted$stashed$deleted$renamed$modified$staged$untracked and )$ahead_behind of remote]($style))'
+style = "bold purple"
+conflicted = " $count conflicts"
+untracked = " $count untracked"
+stashed = " $count stashed"
+modified = " $count modified"
+staged = " $count staged"
+renamed = " $count renamed"
+deleted = " $count deleted"
+diverged = "diverged"
+ahead = "$count ahead"
+behind = "$count behind"
+up_to_date = "up-to-date"
+
+[helm]
+disabled = true
+
+[kubernetes]
+disabled = false
+format = "[$symbol k8s cluster: $context]($style) "
+style = "blue"
+symbol = "⎈"
+
+[package]
+disabled = false
+format = "[$symbol$version]($style) "
+
+[python]
+disabled = true
+
+[status]
+disabled = false
+format = "returned [$symbol$status]($style) "
+
+[terraform]
+format = "[   tf workspace: $workspace]($style) "
+style = "blue"
